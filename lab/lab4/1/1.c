@@ -71,21 +71,11 @@ int calc(int arg1, int arg2, int op){
 int main(int argc, char *argv[]){
     int arg1, arg2, op, result;
     fp_hex = fopen("/dev/HEX30", "w");
-    int button1, button2, button3; //for testmode
 
     while(1){
         fputc(0, fp_hex); fflush(fp_hex);
         printf("\ncalculator start...\n");
         
-        // test mode
-        fp_key = fopen("/dev/key", "r");
-        button1 = fgetc(fp_key);
-        rewind(fp_key);
-        button2 = fgetc(fp_key);
-        rewind(fp_key);
-        button3 = fgetc(fp_key);
-        fclose(fp_key);
-        //test mode
         key_wait(); // 첫 눌림 시작 전까지 시작 x
 
         printf("arg 1 input mode\n");
