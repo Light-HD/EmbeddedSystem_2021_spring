@@ -5,14 +5,14 @@ FILE *fp_hex, *fp_key;
 void key_wait(){
     // key값 무한 대기 & button이 눌리면 break
     int button;
-    while(1){
-        
-        fp_key = fopen("/dev/key", "r"); usleep(500000);
+    fp_key = fopen("/dev/key", "r"); //usleep(500000);
+    while(1){ 
         button = fgetc(fp_key);
-        fclose(fp_key);
+        
         if(button)
             break;
     }
+    fclose(fp_key);
 }
 
 int input_arg(){
