@@ -1,0 +1,2 @@
+mknod /dev/HEX30 u 248 0
+mknod /dev/key u 247 0
