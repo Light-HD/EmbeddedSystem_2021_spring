@@ -28,7 +28,7 @@ int HEX30_release(struct inode *minode, struct file *mfile){
     return 0;
 }
 
-int num2hex(char num){
+int num2hex(signed char num){
     int hexNum[] = {0b00111111, 0b00000110, 0b01011011, 0b01001111, 0b01100110, 
                             0b01101101, 0b01111101, 0b00000111, 0b01111111, 0b01100111};
     if (num < 0)
