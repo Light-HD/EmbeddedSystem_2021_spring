@@ -74,21 +74,19 @@ int main(int argc, char *argv[]){
 
     while(1){
         fputc(0, fp_hex); fflush(fp_hex);
-        printf("\ncalculator start...\n");
+        printf("\ncalculator start...\n\n");    
         
-        key_wait(); // 첫 눌림 시작 전까지 시작 x
-
         printf("arg 1 input mode\n");
+        key_wait(); // 첫 눌림 시작 전까지 시작 x       
         arg1 = input_arg();
-        key_wait();
-
+        
         printf("op input mode\n");
-        op = input_op();
         key_wait();
-
+        op = input_op();
+        
         printf("arg 2 input mode\n");
+        key_wait();
         arg2 = input_arg();
-
         
         result = calc(arg1, arg2, op);
         fputc(result, fp_hex); fflush(fp_hex);
