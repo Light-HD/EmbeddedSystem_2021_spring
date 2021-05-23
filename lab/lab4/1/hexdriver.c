@@ -41,7 +41,7 @@ int num2hex(char num){
         return hexNum[num];
 }
 ssize_t HEX30_write_byte(struct file *inode, const char *gdata, size_t length, loff_t *off_wat){
-    unsigned char c;
+    char c;
 
     get_user(c, gdata);
     *HEX30_ptr = num2hex(c);
