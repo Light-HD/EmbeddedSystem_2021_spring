@@ -5,19 +5,21 @@ FILE *fp_hex, *fp_key;
 void key_wait(){
     // key값 무한 대기 & button이 눌리면 break
     int button;
-    while(1){ 
-        button = fgetc(fp_key);
-        if(button)
-            break;
-    }
+    fp_key = fopen("/dev/key", "r"); //usleep(500000);
+    while(!fgetc(fp_key));
+    fclose(fp_key);
 }
 
 int input_arg(){
     int arg=0;
+    
     //키 누르는 내내 arg 1씩 추가 & display
     while(1){
-        if(!fgetc(fp_key)) //key가 입력x면 break, 입력중이면 아래 실행
+        fp_key = fopen("/dev/key", "r");
+        if(!fgetc(fp_key)){ //key가 입력x면 break, 입력중이면 아래 실행
+            fclose(fp_key);
             break;
+        }
         arg = (arg+1) % 10;
         fputc(arg, fp_hex);
         fflush(fp_hex);
@@ -32,8 +34,11 @@ int input_op(){
     //키 누르는 내내 op 1씩 추가 & display
     // 0124 = +-*/
     while(1){
-        if(!fgetc(fp_key)) //key가 입력x면 break, 입력중이면 아래 실행
+        fp_key = fopen("/dev/key", "r");
+        if(!fgetc(fp_key)){ //key가 입력x면 break, 입력중이면 아래 실행
+            fclose(fp_key);
             break;
+        }
         op = (op+1) % 4;
         fputc(op, fp_hex);
         fflush(fp_hex);
@@ -61,7 +66,7 @@ int calc(int arg1, int arg2, int op){
 int main(int argc, char *argv[]){
     int arg1, arg2, op, result;
     fp_hex = fopen("/dev/HEX30", "w");
-    fp_key = fopen("/dev/key", "r");
+
     while(1){
         fputc(0, fp_hex); fflush(fp_hex);
         printf("\ncalculator start...\n\n");    
@@ -84,7 +89,6 @@ int main(int argc, char *argv[]){
         usleep(5000000); //5초간 결과 출력        
     }
     fclose(fp_hex);
-    fclose(fp_key);
-    
+
     return 0;
 }
