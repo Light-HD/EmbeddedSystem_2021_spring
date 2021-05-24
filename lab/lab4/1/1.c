@@ -4,7 +4,6 @@ FILE *fp_hex, *fp_key;
 
 void key_wait(){
     // key값 무한 대기 & button이 눌리면 break
-    int button;
     fp_key = fopen("/dev/key", "r"); //usleep(500000);
     while(!fgetc(fp_key));
     fclose(fp_key);
