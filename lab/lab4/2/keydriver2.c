@@ -17,7 +17,6 @@
 
 void* LW_virtual;
 static int KEY_major = 0;
-volatile int* LEDR_ptr;
 volatile int* KEY_ptr;
 static int updown = 0;
 
@@ -65,8 +64,6 @@ static int __init initialize_pushbutton_handler(void){
     // interrupt part
     
     LW_virtual = ioremap_nocache(LW_BRIDGE_BASE, LW_BRIDGE_SPAN); //주소값 받아오기
-    LEDR_ptr = LW_virtual + LEDR_BASE;
-    *LEDR_ptr = 0;
 
     KEY_ptr = LW_virtual + KEY_BASE;
     *(KEY_ptr+3) = 1; //엣지캡쳐 제거
@@ -81,7 +78,6 @@ static int __init initialize_pushbutton_handler(void){
 
 static void __exit cleanup_pushbutton_handler(void){
     printk(KERN_INFO "[KEY_exit]\n");
-    *LEDR_ptr = 0;
     free_irq(KEYS_IRQ, (void*)irq_handler);
     unregister_chrdev(KEY_major, KEY_NAME);
 }
