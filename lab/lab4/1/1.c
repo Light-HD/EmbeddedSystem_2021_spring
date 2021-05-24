@@ -19,7 +19,7 @@ int input_arg(){
         if(!fgetc(fp_key)){ //key가 입력x면 break, 입력중이면 아래 실행
             fclose(fp_key);
             break;
-        }
+        } fclose(fp_key);
         arg = (arg+1) % 10;
         fputc(arg, fp_hex);
         fflush(fp_hex);
@@ -38,7 +38,7 @@ int input_op(){
         if(!fgetc(fp_key)){ //key가 입력x면 break, 입력중이면 아래 실행
             fclose(fp_key);
             break;
-        }
+        } fclose(fp_key);
         op = (op+1) % 4;
         fputc(op, fp_hex);
         fflush(fp_hex);
