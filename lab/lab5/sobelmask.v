@@ -49,38 +49,47 @@ module TOP(
     SOBEL U2 (.p0(p11), .p1(p12), .p2(p13), .p3(p21), .p5(p23), .p6(p31), .p7(p32), .p8(p33),
                 .out(out_p3));
 
-    // input FF A
+    // input register A
     always @ (posedge clk)
-            if(cs & write & (addr == 3'd00)) begin
+            if(cs & write & (addr == 3'b000)) begin
                     if(byteenable[0]) data0[ 7: 0] <= writedata0[ 7: 0];
                     if(byteenable[1]) data0[15: 8] <= writedata0[15: 8];
                     if(byteenable[2]) data0[23:16] <= writedata0[23:16];
                     if(byteenable[3]) data0[31:24] <= writedata0[31:24];
             end 
-    // input FF B
+    // input register B
     always @ (posedge clk)
-            if(cs & write & (addr == 3'd01)) begin
+            if(cs & write & (addr == 3'b001)) begin
                     if(byteenable[0]) data1[ 7: 0] <= writedata1[ 7: 0];
                     if(byteenable[1]) data1[15: 8] <= writedata1[15: 8];
                     if(byteenable[2]) data1[23:16] <= writedata1[23:16];
                     if(byteenable[3]) data1[31:24] <= writedata1[31:24];
             end
-    // input FF C
+    // input register C
     always @ (posedge clk)
-            if(cs & write & (addr == 3'd10)) begin
+            if(cs & write & (addr == 3'b010)) begin
                     if(byteenable[0]) data2[ 7: 0] <= writedata2[ 7: 0];
                     if(byteenable[1]) data2[15: 8] <= writedata2[15: 8];
                     if(byteenable[2]) data2[23:16] <= writedata2[23:16];
                     if(byteenable[3]) data2[31:24] <= writedata2[31:24];
             end
-    
-    // 출력모듈
+    // input register D
+    always @ (posedge clk)
+            if(cs & write & (addr == 3'b011)) begin
+                    if(byteenable[0]) data3[ 7: 0] <= writedata3[ 7: 0];
+                    if(byteenable[1]) data3[15: 8] <= writedata3[15: 8];
+                    if(byteenable[2]) data3[23:16] <= writedata3[23:16];
+                    if(byteenable[3]) data3[31:24] <= writedata3[31:24];
+            end
+    // output register
     always @ (posedge clk)
             if(cs & read)
                     case(addr)
-                            2'd0: rdata <= data0;
-                            2'd1: rdata <= data1;
-                            2'd2: rdata <= popcount_result;
+                            3'b000: rdata <= data0; //input
+                            3'b001: rdata <= data1; //input
+                            3'b010: rdata <= data2; //input
+                            3'b011: rdata <= data3; //input
+                            3'b100: rdata <= {out_p0,out_p1,out_p2,out_p3} //output
                             default: rdata <= 32'dx;
                     endcase
 
