@@ -1,0 +1,108 @@
+module TOP(
+        //Avalon MM I/F
+        input   wire    [ 2:0]   addr,
+        output  reg     [31:0]   rdata,                          //output image는 2*2가 출력되므로 32bit
+        input   wire    [31:0]   writedata0, writedata1, writedata2, writedata3, //input image = 4*4-> 1행에 4pixel = 32bit, 4줄
+        input   wire             cs,
+        input   wire             read,
+        input   wire             write,
+
+        //Avlaon clock & reset I/F
+        input   wire            clk,
+        input   wire            rst
+);
+    //input data writedata matrix를 pixelwise하게
+    wire [7:0] p00, p01, p02, p03; 
+    wire [7:0] p10, p11, p12, p13;
+    wire [7:0] p20, p21, p22, p23;
+    wire [7:0] p30, p31, p32, p33;
+
+    reg [31:0] data0, data1, data2, data3;
+    reg [7:0] out_p0, out_p1, out_p2, out_p3; //rdata[31:0] = {outp0...outp3}
+
+    assign p00 = writedata0[31:24];
+    assign p01 = writedata0[23:16];
+    assign p02 = writedata0[15:8];
+    assign p03 = writedata0[7:0];
+
+    assign p10 = writedata1[31:24];
+    assign p11 = writedata1[23:16];
+    assign p12 = writedata1[15:8];
+    assign p13 = writedata1[7:0];
+
+    assign p20 = writedata2[31:24];
+    assign p21 = writedata2[23:16];
+    assign p22 = writedata2[15:8];
+    assign p23 = writedata2[7:0];
+
+    assign p30 = writedata3[31:24];
+    assign p31 = writedata3[23:16];
+    assign p32 = writedata3[15:8];
+    assign p33 = writedata3[7:0];
+
+    SOBEL U0 (.p0(p00), .p1(p01), .p2(p02), .p3(p10), .p5(p12), .p6(p20), .p7(p21), .p8(p22),
+                .out(out_p0));
+    SOBEL U1 (.p0(p01), .p1(p02), .p2(p03), .p3(p11), .p5(p13), .p6(p21), .p7(p22), .p8(p23),
+                .out(out_p1));
+    SOBEL U2 (.p0(p10), .p1(p11), .p2(p12), .p3(p20), .p5(p22), .p6(p30), .p7(p31), .p8(p32),
+                .out(out_p2));
+    SOBEL U2 (.p0(p11), .p1(p12), .p2(p13), .p3(p21), .p5(p23), .p6(p31), .p7(p32), .p8(p33),
+                .out(out_p3));
+
+    // input FF A
+    always @ (posedge clk)
+            if(cs & write & (addr == 3'd00)) begin
+                    if(byteenable[0]) data0[ 7: 0] <= writedata0[ 7: 0];
+                    if(byteenable[1]) data0[15: 8] <= writedata0[15: 8];
+                    if(byteenable[2]) data0[23:16] <= writedata0[23:16];
+                    if(byteenable[3]) data0[31:24] <= writedata0[31:24];
+            end 
+    // input FF B
+    always @ (posedge clk)
+            if(cs & write & (addr == 3'd01)) begin
+                    if(byteenable[0]) data1[ 7: 0] <= writedata1[ 7: 0];
+                    if(byteenable[1]) data1[15: 8] <= writedata1[15: 8];
+                    if(byteenable[2]) data1[23:16] <= writedata1[23:16];
+                    if(byteenable[3]) data1[31:24] <= writedata1[31:24];
+            end
+    // input FF C
+    always @ (posedge clk)
+            if(cs & write & (addr == 3'd10)) begin
+                    if(byteenable[0]) data2[ 7: 0] <= writedata2[ 7: 0];
+                    if(byteenable[1]) data2[15: 8] <= writedata2[15: 8];
+                    if(byteenable[2]) data2[23:16] <= writedata2[23:16];
+                    if(byteenable[3]) data2[31:24] <= writedata2[31:24];
+            end
+    
+    // 출력모듈
+    always @ (posedge clk)
+            if(cs & read)
+                    case(addr)
+                            2'd0: rdata <= data0;
+                            2'd1: rdata <= data1;
+                            2'd2: rdata <= popcount_result;
+                            default: rdata <= 32'dx;
+                    endcase
+
+endmodule
+
+
+module SOBEL(
+    input wire [7:0] p0, p1, p2, p3, p5, p6, p7, p8, // 글 읽는 방향으로 p0 to p8, and p4 is not needed
+    output wire [7:0] out                            //out=p4가 될 것
+    );
+
+    wire signed [10:0] gx,gy;           //11 bits because max value of gx and gy is 255*4 and last bit for sign				
+    wire signed [10:0] abs_gx,abs_gy;	//it is used to find the absolute value of gx and gy 
+    wire [10:0] sum;			        //the max value is 255*8. here no sign bit needed. 
+
+    assign gx=((p2-p0)+((p5-p3)<<1)+(p8-p6)); //sobel mask for gradient in horiz. direction 
+    assign gy=((p0-p6)+((p1-p7)<<1)+(p2-p8)); //sobel mask for gradient in vertical direction 
+
+    assign abs_gx = (gx[10]? ~gx+1 : gx);	// to find the absolute value of gx. 
+    assign abs_gy = (gy[10]? ~gy+1 : gy);	// to find the absolute value of gy. 
+
+    assign sum = (abs_gx+abs_gy);				// finding the sum 
+    assign out = (|sum[10:8])?8'hff : sum[7:0];	// to limit the max value to 255  
+
+endmodule
