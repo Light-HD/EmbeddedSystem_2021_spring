@@ -3,6 +3,7 @@ module TOP(
         input   wire    [ 2:0]   addr,
         output  reg     [31:0]   rdata,                          //output image는 2*2가 출력되므로 32bit
         input   wire    [31:0]   writedata0, writedata1, writedata2, writedata3, //input image = 4*4-> 1행에 4pixel = 32bit, 4줄
+        input   wire    [ 3:0]   byteenable,
         input   wire             cs,
         input   wire             read,
         input   wire             write,
@@ -17,9 +18,12 @@ module TOP(
     wire [7:0] p20, p21, p22, p23;
     wire [7:0] p30, p31, p32, p33;
 
+/   // input data save register
     reg [31:0] data0, data1, data2, data3;
+    // output data wire?reg?
     reg [7:0] out_p0, out_p1, out_p2, out_p3; //rdata[31:0] = {outp0...outp3}
 
+    // input data separate
     assign p00 = writedata0[31:24];
     assign p01 = writedata0[23:16];
     assign p02 = writedata0[15:8];
@@ -40,6 +44,7 @@ module TOP(
     assign p32 = writedata3[15:8];
     assign p33 = writedata3[7:0];
 
+    // using module for sobel mask
     SOBEL U0 (.p0(p00), .p1(p01), .p2(p02), .p3(p10), .p5(p12), .p6(p20), .p7(p21), .p8(p22),
                 .out(out_p0));
     SOBEL U1 (.p0(p01), .p1(p02), .p2(p03), .p3(p11), .p5(p13), .p6(p21), .p7(p22), .p8(p23),
@@ -101,12 +106,12 @@ module SOBEL(
     output wire [7:0] out                            //out=p4가 될 것
     );
 
-    wire signed [10:0] gx,gy;           //11 bits because max value of gx and gy is 255*4 and last bit for sign				
-    wire signed [10:0] abs_gx,abs_gy;	//it is used to find the absolute value of gx and gy 
+    wire signed [10:0] gx, gy;           //11 bits because max value of gx and gy is 255*4 and last bit for sign				
+    wire signed [10:0] abs_gx, abs_gy;	//it is used to find the absolute value of gx and gy 
     wire [10:0] sum;			        //the max value is 255*8. here no sign bit needed. 
 
-    assign gx=((p2-p0)+((p5-p3)<<1)+(p8-p6)); //sobel mask for gradient in horiz. direction 
-    assign gy=((p0-p6)+((p1-p7)<<1)+(p2-p8)); //sobel mask for gradient in vertical direction 
+    assign gx = ((p2-p0)+((p5-p3)<<1)+(p8-p6)); //sobel mask for gradient in horiz. direction 
+    assign gy = ((p0-p6)+((p1-p7)<<1)+(p2-p8)); //sobel mask for gradient in vertical direction 
 
     assign abs_gx = (gx[10]? ~gx+1 : gx);	// to find the absolute value of gx. 
     assign abs_gy = (gy[10]? ~gy+1 : gy);	// to find the absolute value of gy. 
