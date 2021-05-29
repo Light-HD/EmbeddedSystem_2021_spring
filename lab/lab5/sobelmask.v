@@ -18,7 +18,7 @@ module TOP(
     wire [7:0] p20, p21, p22, p23;
     wire [7:0] p30, p31, p32, p33;
 
-/   // input data save register
+    // input data save register
     reg [31:0] data0, data1, data2, data3;
     // output data wire?reg?
     reg [7:0] out_p0, out_p1, out_p2, out_p3; //rdata[31:0] = {outp0...outp3}
@@ -51,7 +51,7 @@ module TOP(
                 .out(out_p1));
     SOBEL U2 (.p0(p10), .p1(p11), .p2(p12), .p3(p20), .p5(p22), .p6(p30), .p7(p31), .p8(p32),
                 .out(out_p2));
-    SOBEL U2 (.p0(p11), .p1(p12), .p2(p13), .p3(p21), .p5(p23), .p6(p31), .p7(p32), .p8(p33),
+    SOBEL U3 (.p0(p11), .p1(p12), .p2(p13), .p3(p21), .p5(p23), .p6(p31), .p7(p32), .p8(p33),
                 .out(out_p3));
 
     // input register A
@@ -94,7 +94,7 @@ module TOP(
                             3'b001: rdata <= data1; //input
                             3'b010: rdata <= data2; //input
                             3'b011: rdata <= data3; //input
-                            3'b100: rdata <= {out_p0,out_p1,out_p2,out_p3} //output
+                            3'b100: rdata <= {out_p0,out_p1,out_p2,out_p3}; //output
                             default: rdata <= 32'dx;
                     endcase
 
