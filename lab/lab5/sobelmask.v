@@ -2,7 +2,7 @@ module TOP(
         //Avalon MM I/F
         input   wire    [ 2:0]   addr,
         output  reg     [31:0]   rdata,                          //output image는 2*2가 출력되므로 32bit
-        input   wire    [31:0]   writedata0, writedata1, writedata2, writedata3, //input image = 4*4-> 1행에 4pixel = 32bit, 4줄
+        input   wire    [127:0]  writedata, //input image = 4*4-> 1행에 4pixel = 32bit, 4줄=128
         input   wire    [ 3:0]   byteenable,
         input   wire             cs,
         input   wire             read,
@@ -24,25 +24,25 @@ module TOP(
     reg [7:0] out_p0, out_p1, out_p2, out_p3; //rdata[31:0] = {outp0...outp3}
 
     // input data separate
-    assign p00 = writedata0[31:24];
-    assign p01 = writedata0[23:16];
-    assign p02 = writedata0[15:8];
-    assign p03 = writedata0[7:0];
+    assign p00 = data0[31:24];
+    assign p01 = data0[23:16];
+    assign p02 = data0[15: 8];
+    assign p03 = data0[ 7: 0];
 
-    assign p10 = writedata1[31:24];
-    assign p11 = writedata1[23:16];
-    assign p12 = writedata1[15:8];
-    assign p13 = writedata1[7:0];
+    assign p10 = data1[31:24];
+    assign p11 = data1[23:16];
+    assign p12 = data1[15: 8];
+    assign p13 = data1[ 7: 0];
 
-    assign p20 = writedata2[31:24];
-    assign p21 = writedata2[23:16];
-    assign p22 = writedata2[15:8];
-    assign p23 = writedata2[7:0];
+    assign p20 = data2[63:56];
+    assign p21 = data2[55:48];
+    assign p22 = data2[47:40];
+    assign p23 = data2[39:32];
 
-    assign p30 = writedata3[31:24];
-    assign p31 = writedata3[23:16];
-    assign p32 = writedata3[15:8];
-    assign p33 = writedata3[7:0];
+    assign p30 = data3[31:24];
+    assign p31 = data3[23:16];
+    assign p32 = data3[15:8];
+    assign p33 = data3[7:0];
 
     // using module for sobel mask
     SOBEL U0 (.p0(p00), .p1(p01), .p2(p02), .p3(p10), .p5(p12), .p6(p20), .p7(p21), .p8(p22),
@@ -57,34 +57,34 @@ module TOP(
     // input register A
     always @ (posedge clk)
             if(cs & write & (addr == 3'b000)) begin
-                    if(byteenable[0]) data0[ 7: 0] <= writedata0[ 7: 0];
-                    if(byteenable[1]) data0[15: 8] <= writedata0[15: 8];
-                    if(byteenable[2]) data0[23:16] <= writedata0[23:16];
-                    if(byteenable[3]) data0[31:24] <= writedata0[31:24];
+                    if(byteenable[0]) data0[ 7: 0] <= writedata[103:96];
+                    if(byteenable[1]) data0[15: 8] <= writedata[111:104];
+                    if(byteenable[2]) data0[23:16] <= writedata[119:112];
+                    if(byteenable[3]) data0[31:24] <= writedata[127:120];
             end 
     // input register B
     always @ (posedge clk)
             if(cs & write & (addr == 3'b001)) begin
-                    if(byteenable[0]) data1[ 7: 0] <= writedata1[ 7: 0];
-                    if(byteenable[1]) data1[15: 8] <= writedata1[15: 8];
-                    if(byteenable[2]) data1[23:16] <= writedata1[23:16];
-                    if(byteenable[3]) data1[31:24] <= writedata1[31:24];
+                    if(byteenable[0]) data1[ 7: 0] <= writedata[71:64];
+                    if(byteenable[1]) data1[15: 8] <= writedata[79:72];
+                    if(byteenable[2]) data1[23:16] <= writedata[87:80];
+                    if(byteenable[3]) data1[31:24] <= writedata[95:88];
             end
     // input register C
     always @ (posedge clk)
             if(cs & write & (addr == 3'b010)) begin
-                    if(byteenable[0]) data2[ 7: 0] <= writedata2[ 7: 0];
-                    if(byteenable[1]) data2[15: 8] <= writedata2[15: 8];
-                    if(byteenable[2]) data2[23:16] <= writedata2[23:16];
-                    if(byteenable[3]) data2[31:24] <= writedata2[31:24];
+                    if(byteenable[0]) data2[ 7: 0] <= writedata[39:32];
+                    if(byteenable[1]) data2[15: 8] <= writedata[47:40];
+                    if(byteenable[2]) data2[23:16] <= writedata[55:48];
+                    if(byteenable[3]) data2[31:24] <= writedata[63:56];
             end
     // input register D
     always @ (posedge clk)
             if(cs & write & (addr == 3'b011)) begin
-                    if(byteenable[0]) data3[ 7: 0] <= writedata3[ 7: 0];
-                    if(byteenable[1]) data3[15: 8] <= writedata3[15: 8];
-                    if(byteenable[2]) data3[23:16] <= writedata3[23:16];
-                    if(byteenable[3]) data3[31:24] <= writedata3[31:24];
+                    if(byteenable[0]) data3[ 7: 0] <= writedata[ 7: 0];
+                    if(byteenable[1]) data3[15: 8] <= writedata[15: 8];
+                    if(byteenable[2]) data3[23:16] <= writedata[23:16];
+                    if(byteenable[3]) data3[31:24] <= writedata[31:24];
             end
     // output register
     always @ (posedge clk)
